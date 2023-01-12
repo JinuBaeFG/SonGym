@@ -10,47 +10,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 사용자 테이블 시작
 model User {
-  id        Int       @id @default(autoincrement())
-  firstName String
-  lastName  String?
-  username  String    @unique
-  email     String    @unique
-  password  String
-  bio       String?
-  avatar    String?
-  photos    Photo[]
-  likes     Like[]
-  followers User[]    @relation("FollowRelation")
-  following User[]    @relation("FollowRelation")
-  comments  Comment[]
-  rooms     Room[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Message   Message[]
+  id             Int              @id @default(autoincrement())
+  firstName      String
+  lastName       String?
+  username       String           @unique
+  email          String           @unique
+  password       String
+  bio            String?
+  avatar         String?
+  photos         Photo[]
+  likes          Like[]
+  followers      User[]           @relation("FollowRelation")
+  following      User[]           @relation("FollowRelation")
+  comments       Comment[]
+  rooms          Room[]
+  messages       Message[]
+  group          Group[]
+  tutorReview    TutorReview[]
+  favorite       Favorite[]
+  tutorLikes     TutorLike[]
+  activeArea     String?
+  areaLatitude   String?
+  areaLongitude  String?
+  recomment      Recomment[]
+  tutor          Tutor[]
+  tutorGroup     TutorGroup[]
+  groupPresident GroupPresident[]
+  groupJoin      GroupJoin[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
+// 사용자 테이블 끝
+// 피드 테이블
 model Photo {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
+  id        Int           @id @default(autoincrement())
+  user      User          @relation(fields: [userId], references: [id])
   userId    Int
-  file      String
+  files     UploadFiles[]
   caption   String?
+  category  String?
   hashtags  Hashtag[]
   comments  Comment[]
   likes     Like[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  favorite  Favorite[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  Recomment Recomment[]
 }
 
-model Hashtag {
-  id        Int      @id @default(autoincrement())
-  hashtag   String   @unique
-  photos    Photo[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
+// 피드 좋아요 테이블
 model Like {
   id        Int      @id @default(autoincrement())
   photo     Photo    @relation(fields: [photoId], references: [id])
@@ -63,17 +74,346 @@ model Like {
   @@unique([photoId, userId])
 }
 
-model Comment {
+// 피드 찜하기 테이블
+model Favorite {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
-  photo     Photo    @relation(fields: [photoId], references: [id])
-  payload   String
   userId    Int
+  photo     Photo    @relation(fields: [photoId], references: [id])
+  photoId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([photoId, userId])
+}
+
+// 피드 업로드 테이블
+model UploadFiles {
+  id        Int      @id @default(autoincrement())
+  fileUrl   String   @unique
+  photo     Photo    @relation(fields: [photoId], references: [id])
   photoId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+// 피드 댓글 테이블
+model Comment {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  photo     Photo       @relation(fields: [photoId], references: [id])
+  payload   String
+  userId    Int
+  photoId   Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Recomment Recomment[]
+}
+
+// 피드 대댓글 테이블
+model Recomment {
+  id        Int      @id @default(autoincrement())
+  payload   String
+  user      User     @relation(fields: [userId], references: [id])
+  photo     Photo    @relation(fields: [photoId], references: [id])
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  userId    Int
+  photoId   Int
+  commentId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 피드 테이블 끝
+// 그룹 테이블 시작
+model Group {
+  id             Int              @id @default(autoincrement())
+  groupname      String
+  activeArea     String?
+  areaLatitude   String?
+  areaLongitude  String?
+  sportsEvent    String
+  photoUrl       String?
+  discription    String?
+  users          User[]
+  maxMember      Int
+  groupInfo      GroupInfo[]
+  facility       Facility[]
+  groupTag       GroupTag[]
+  groupPresident GroupPresident[]
+  groupJoin      GroupJoin[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model GroupJoin {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+  userId    Int
+  groupId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, groupId])
+}
+
+model GroupPresident {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+  userId    Int
+  groupId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 그룹 추가 태그 테이블
+model GroupTag {
+  id        Int      @id @default(autoincrement())
+  tagname   String
+  group     Group    @relation(fields: [groupId], references: [id])
+  groupId   Int
+  isUse     Boolean
+  isCustom  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 그룹 활동 정보 테이블
+model GroupInfo {
+  id          Int      @id @default(autoincrement())
+  discription String
+  awardDate   String?
+  group       Group    @relation(fields: [groupId], references: [id])
+  groupId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 그룹 테이블 끝
+// 시설 테이블 시작
+model Facility {
+  id            Int             @id @default(autoincrement())
+  photoUrl      String?
+  facilityname  String
+  areaAddress   String?
+  areaLatitude  String?
+  areaLongitude String?
+  facilityCall  String?
+  discription   String?
+  tutor         Tutor[]
+  group         Group[]
+  facilityInfo  FacilityInfo[]
+  facilityTag   FacilityTag[]
+  facilityEvent FacilityEvent[]
+  tutorGroup    TutorGroup[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+// 시설 추가 태그 테이블
+model FacilityTag {
+  id         Int      @id @default(autoincrement())
+  tagname    String
+  facility   Facility @relation(fields: [facilityId], references: [id])
+  facilityId Int
+  isUse      Boolean
+  isCustom   Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// 시설 이력 테이블
+model FacilityInfo {
+  id          Int      @id @default(autoincrement())
+  discription String
+  awardDate   String?
+  facility    Facility @relation(fields: [facilityId], references: [id])
+  facilityId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 시설 종목 테이블 (예 : 축구, 풋살 / 테니스, 배드민턴 등 다중 종목 설정을 위한 테이블)
+model FacilityEvent {
+  id          Int      @id @default(autoincrement())
+  sportsEvent String
+  facility    Facility @relation(fields: [facilityId], references: [id])
+  facilityId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 시설 테이블 끝
+// 튜터 테이블 시작
+model Tutor {
+  id            Int           @id @default(autoincrement())
+  user          User?         @relation(fields: [userId], references: [id])
+  userId        Int?
+  groupname     String
+  activeArea    String?
+  areaLatitude  String?
+  areaLongitude String?
+  sportsEvent   String
+  photoUrl      String?
+  discription   String?
+  tutorInfo     tutorInfo[]
+  tutorTag      TutorTag[]
+  tutorReview   TutorReview[]
+  tutorGroup    TutorGroup[]
+  TutorLike     TutorLike[]
+  TutorPrice    TutorPrice[]
+  facility      Facility[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// 튜터 추가 태그 테이블
+model TutorTag {
+  id        Int      @id @default(autoincrement())
+  tagname   String
+  tutor     Tutor    @relation(fields: [tutorId], references: [id])
+  tutorId   Int
+  isUse     Boolean
+  isCustom  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 튜터 활동 정보 테이블
+model tutorInfo {
+  id          Int      @id @default(autoincrement())
+  discription String
+  awardDate   String?
+  tutor       Tutor    @relation(fields: [tutorId], references: [id])
+  tutorId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 튜터 리뷰 테이블 (댓글 X)
+model TutorReview {
+  id        Int      @id @default(autoincrement())
+  payload   String
+  point     Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  tutor     Tutor    @relation(fields: [tutorId], references: [id])
+  tutorId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tutorId, userId])
+}
+
+// 튜터 좋아요 테이블
+model TutorLike {
+  id        Int      @id @default(autoincrement())
+  tutor     Tutor    @relation(fields: [tutorId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  tutorId   Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tutorId, userId])
+}
+
+// 튜터 가격표 테이블
+model TutorPrice {
+  id           Int      @id @default(autoincrement())
+  pricename    String
+  sportsevent  String
+  rotation     String
+  discription  String
+  tutoringTime String
+  tutor        Tutor    @relation(fields: [tutorId], references: [id])
+  tutorId      Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 튜터 그룹 테이블
+model TutorGroup {
+  id             Int              @id @default(autoincrement())
+  groupname      String
+  activeArea     String?
+  areaLatitude   String?
+  areaLongitude  String?
+  sportsEvent    String
+  photoUrl       String?
+  discription    String?
+  users          User[]
+  maxMember      Int
+  facility       Facility[]
+  tutorGroupInfo TutorGroupInfo[]
+  tutorGroupTag  TutorGroupTag[]
+  tutor          Tutor?           @relation(fields: [tutorId], references: [id])
+  tutorId        Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+// 튜터 그룹 추가 태그 테이블
+model TutorGroupTag {
+  id           Int        @id @default(autoincrement())
+  tagname      String
+  tutorGroup   TutorGroup @relation(fields: [tutorGroupId], references: [id])
+  tutorGroupId Int
+  isUse        Boolean
+  isCustom     Boolean
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// 튜터 그룹 활동 정보 테이블
+model TutorGroupInfo {
+  id           Int         @id @default(autoincrement())
+  discription  String
+  awardDate    String?
+  tutorGroup   TutorGroup? @relation(fields: [tutorGroupId], references: [id])
+  tutorGroupId Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+// 튜터 테이블 끝
+// 공통 테이블 시작
+// 공통 카테고리 테이블
+model CategroyList {
+  id        Int      @id @default(autoincrement())
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 공통 태그 테이블
+model Tag {
+  id        Int      @id @default(autoincrement())
+  tagname   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 공통 스포츠 종목 테이블
+model SportsEvent {
+  id        Int      @id @default(autoincrement())
+  eventname String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 공통 해시태그 테이블 (미사용)
+model Hashtag {
+  id        Int      @id @default(autoincrement())
+  hashtag   String   @unique
+  photos    Photo[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 채팅방 테이블
 model Room {
   id        Int       @id @default(autoincrement())
   users     User[]
@@ -82,6 +422,7 @@ model Room {
   updatedAt DateTime  @updatedAt
 }
 
+// 채팅 메세지 테이블
 model Message {
   id        Int      @id @default(autoincrement())
   payload   String
@@ -93,3 +434,5 @@ model Message {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// 공통 테이블 끝

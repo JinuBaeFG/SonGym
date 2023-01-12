@@ -1,10 +1,12 @@
 export default {
   Query: {
-    seePhoto: (_, { id }, { client }) =>
+    seePhoto: (_, { id }, { client }) => {
+      return;
       client.photo.findUnique({
         where: {
           id,
         },
-      }),
+      });
+    },
   },
 };

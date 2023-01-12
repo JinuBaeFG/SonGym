@@ -3,6 +3,16 @@ import { protectedResolver } from "../users/users.utils";
 
 export default {
   Photo: {
+    files: ({ id }) => {
+      return client.uploadFiles.findMany({
+        where: {
+          photoId: id,
+        },
+        include: {
+          photo: true,
+        },
+      });
+    },
     user: ({ userId }) => {
       return client.user.findUnique({
         where: {

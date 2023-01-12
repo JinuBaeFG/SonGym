@@ -4,12 +4,13 @@ export default gql`
   type Photo {
     id: Int!
     user: User!
-    file: String!
+    files: [UploadFiles]
     caption: String
     likes: Int!
     commentNumber: Int!
     comments: [Comment]
     hashtag: [Hashtag]
+    sortation: String
     isMine: Boolean!
     isLiked: Boolean!
     createdAt: String!
@@ -27,6 +28,14 @@ export default gql`
 
   type Like {
     id: Int!
+    photoId: Photo!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type UploadFiles {
+    id: Int!
+    fileUrl: String
     photoId: Photo!
     createdAt: String!
     updatedAt: String!

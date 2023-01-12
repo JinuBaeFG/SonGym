@@ -46,13 +46,25 @@ export default {
       });
       return Boolean(exists);
     },
-    photos: ({ id }) =>
-      client.user
+    photos: ({ id }) => {
+      return client.user
         .findUnique({
           where: {
             id,
           },
         })
-        .photos(),
+        .photos();
+    },
+    group: ({ id }) => {
+      return client.group.findMany({
+        where: {
+          users: {
+            some: {
+              id,
+            },
+          },
+        },
+      });
+    },
   },
 };

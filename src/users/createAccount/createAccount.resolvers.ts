@@ -34,6 +34,7 @@ export default {
             password: uglyPassword,
           },
         });
+
         return {
           ok: true,
         };

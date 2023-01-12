@@ -1,4 +1,3 @@
-import { withFilter } from "apollo-server-express";
 import client from "../../client";
 import { NEW_MESSAGE } from "../../constants";
 import pubsub from "../../pubsub";
@@ -22,7 +21,7 @@ export default {
         });
         if (!room) {
           throw new Error("You shall not see this.");
-        }
+        } /*
         return withFilter(
           () => pubsub.asyncIterator(NEW_MESSAGE),
           async ({ roomUpdates }, { id }, { loggedInUser }) => {
@@ -46,7 +45,7 @@ export default {
               return true;
             }
           }
-        )(root, args, context, info);
+        )(root, args, context, info);*/
       },
     },
   },

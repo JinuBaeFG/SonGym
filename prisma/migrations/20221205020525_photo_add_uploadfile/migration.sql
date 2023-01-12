@@ -1,0 +1,2 @@
+-- AddForeignKey
+ALTER TABLE "File" ADD CONSTRAINT "File_photoId_fkey" FOREIGN KEY ("photoId") REFERENCES "Photo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

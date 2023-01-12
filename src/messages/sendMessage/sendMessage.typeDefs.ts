@@ -1,6 +1,4 @@
-import { gql } from "apollo-server-express";
-
-export default gql`
+export default `#graphql
   type Mutation {
     sendMessage(payload: String!, roomId: Int, userId: Int): MutationResponse!
   }
